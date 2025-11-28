@@ -28,7 +28,7 @@ folder:AddList({
 
 -- ===== Mutation Dropdown =====
 local variantFXFolder = game:GetService("ReplicatedStorage"):WaitForChild("Assets"):WaitForChild("VariantFX")
-local mutations = {"Normal"} -- Add "Normal" as first option
+local mutations = {"Normal"} -- Add "Normal" as default
 for _, mutation in ipairs(variantFXFolder:GetChildren()) do
     table.insert(mutations, mutation.Name)
 end
@@ -45,19 +45,19 @@ folder:AddList({
     flag = "mutation_dropdown"
 })
 
--- ===== Spawn Button (fires remote) =====
+-- ===== Create Button =====
 folder:AddButton({
-    text = "Spawn Character With Mutation",
-    flag = "spawn_button",
+    text = "Create",
+    flag = "create_button",
     callback = function()
         if not selectedCharacter then
             warn("No character selected!")
             return
         end
 
+        -- Build arguments for remote
         local args
         if selectedMutation == "Normal" then
-            -- Remove second line (mutation) if Normal
             args = {
                 selectedCharacter,
                 Instance.new("Model", nil),
@@ -72,9 +72,10 @@ folder:AddButton({
             }
         end
 
+        -- Fire the remote to actually “create” the character
         local remote = game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("BuyCharacter")
         remote:FireServer(unpack(args))
-        print("Fired remote for:", selectedCharacter, "with mutation:", selectedMutation)
+        print("Created:", selectedCharacter, "with mutation:", selectedMutation)
     end
 })
 
