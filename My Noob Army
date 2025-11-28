@@ -1,0 +1,82 @@
+-- Load Tora Library
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/liebertsx/Tora-Library/main/src/librarynew", true))()
+
+-- Create main window
+local tab = library:CreateWindow("My Noob Army")
+
+-- Add folder
+local folder = tab:AddFolder("Character & Mutation")
+
+-- ===== Characters Dropdown =====
+local charFolder = game:GetService("ReplicatedStorage"):WaitForChild("Characters")
+local characters = {}
+for _, char in ipairs(charFolder:GetChildren()) do
+    table.insert(characters, char.Name)
+end
+
+local selectedCharacter = nil
+folder:AddList({
+    text = "Select Character",
+    values = characters,
+    callback = function(value)
+        selectedCharacter = value
+        print("Selected character:", selectedCharacter)
+    end,
+    open = false,
+    flag = "character_dropdown"
+})
+
+-- ===== Mutation Dropdown =====
+local variantFXFolder = game:GetService("ReplicatedStorage"):WaitForChild("Assets"):WaitForChild("VariantFX")
+local mutations = {"Normal"} -- Add "Normal" as first option
+for _, mutation in ipairs(variantFXFolder:GetChildren()) do
+    table.insert(mutations, mutation.Name)
+end
+
+local selectedMutation = "Normal"
+folder:AddList({
+    text = "Select Mutation",
+    values = mutations,
+    callback = function(value)
+        selectedMutation = value
+        print("Selected mutation:", selectedMutation)
+    end,
+    open = false,
+    flag = "mutation_dropdown"
+})
+
+-- ===== Spawn Button (fires remote) =====
+folder:AddButton({
+    text = "Spawn Character With Mutation",
+    flag = "spawn_button",
+    callback = function()
+        if not selectedCharacter then
+            warn("No character selected!")
+            return
+        end
+
+        local args
+        if selectedMutation == "Normal" then
+            -- Remove second line (mutation) if Normal
+            args = {
+                selectedCharacter,
+                Instance.new("Model", nil),
+                "52079223-2ebe-46cf-8f60-b4da7b6663be"
+            }
+        else
+            args = {
+                selectedCharacter,
+                selectedMutation,
+                Instance.new("Model", nil),
+                "52079223-2ebe-46cf-8f60-b4da7b6663be"
+            }
+        end
+
+        local remote = game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("BuyCharacter")
+        remote:FireServer(unpack(args))
+        print("Fired remote for:", selectedCharacter, "with mutation:", selectedMutation)
+    end
+})
+
+-- Show the GUI
+library:Init()
