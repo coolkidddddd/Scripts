@@ -1,8 +1,10 @@
-local function run(url)
-    loadstring(game:HttpGet(url))()
+local function async(url)
+    task.spawn(function()
+        loadstring(game:HttpGet(url))()
+    end)
 end
 
-run("https://raw.githubusercontent.com/coolkidddddd/Scripts/refs/heads/main/Admin%20Spam")
-run("https://raw.githubusercontent.com/coolkidddddd/Scripts/refs/heads/main/leave")
-run("https://raw.githubusercontent.com/coolkidddddd/Scripts/refs/heads/main/ragdoll")
-run("https://raw.githubusercontent.com/tienkhanh1/spicy/main/Chilli.lua")
+async("https://raw.githubusercontent.com/coolkidddddd/Scripts/refs/heads/main/Admin%20Spam")
+async("https://raw.githubusercontent.com/coolkidddddd/Scripts/refs/heads/main/leave")
+async("https://raw.githubusercontent.com/coolkidddddd/Scripts/refs/heads/main/ragdoll")
+async("https://raw.githubusercontent.com/tienkhanh1/spicy/main/Chilli.lua")
