@@ -115,7 +115,7 @@ local function toggleSpeed()
         spawn(function()
             while enabled and bodyVelocity and bodyVelocity.Parent do
                 if humanoid.MoveDirection.Magnitude > 0 then
-                    bodyVelocity.Velocity = humanoid.MoveDirection * 50
+                    bodyVelocity.Velocity = humanoid.MoveDirection * 40
                 else
                     bodyVelocity.Velocity = Vector3.new(0, 0, 0)
                 end
