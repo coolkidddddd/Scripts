@@ -7,7 +7,7 @@ local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 
 local desiredSpeed = 40
-local normalSpeed = 16
+local normalSpeed = 27.5
 
 local boosted = false
 local heartbeatConn
