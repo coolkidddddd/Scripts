@@ -1,47 +1,100 @@
+-- Gentle Speed Toggle (NO BodyVelocity, won't override physics)
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 
--- GUI
+local desiredSpeed = 40
+local normalSpeed = 16
+
+local boosted = false
+local heartbeatConn
+
+-- GUI (top-center)
 local gui = Instance.new("ScreenGui")
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
 local button = Instance.new("TextButton")
-button.Size = UDim2.new(0, 160, 0, 50)
-button.Position = UDim2.new(0.5, -80, 0, 10) -- CENTER TOP
+button.Size = UDim2.new(0, 200, 0, 50)
+button.Position = UDim2.new(0.5, -100, 0, 10) -- center top
 button.BackgroundColor3 = Color3.fromRGB(255, 80, 120)
-button.TextColor3 = Color3.new(1, 1, 1)
+button.TextColor3 = Color3.new(1,1,1)
 button.TextScaled = true
-button.Text = "Speed: OFF"
 button.Font = Enum.Font.GothamBold
+button.Text = "Speed: OFF"
 button.Parent = gui
 
 local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 12)
 corner.Parent = button
 
--- Toggle Speed
-local boosted = false
+-- enable: reapply WalkSpeed each frame (no BodyVelocity)
+local function enableBoost()
+	if heartbeatConn then heartbeatConn:Disconnect() heartbeatConn = nil end
+	boosted = true
+	button.Text = "Speed: ON"
+	button.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
+
+	heartbeatConn = RunService.Heartbeat:Connect(function()
+		-- refresh humanoid reference if character changed
+		if not humanoid or not humanoid.Parent then
+			if player.Character then
+				humanoid = player.Character:FindFirstChildWhichIsA("Humanoid")
+			end
+		end
+
+		-- attempt to set WalkSpeed each frame
+		if humanoid and humanoid.Parent then
+			humanoid.WalkSpeed = desiredSpeed
+		end
+	end)
+
+	-- quick check if WalkSpeed is actually being kept
+	task.delay(0.5, function()
+		if not boosted then return end
+		if humanoid and humanoid.WalkSpeed ~= desiredSpeed then
+			button.Text = "Speed: BLOCKED"
+			button.BackgroundColor3 = Color3.fromRGB(255, 170, 50)
+		end
+	end)
+end
+
+local function disableBoost()
+	boosted = false
+	button.Text = "Speed: OFF"
+	button.BackgroundColor3 = Color3.fromRGB(255, 80, 120)
+
+	if heartbeatConn then
+		heartbeatConn:Disconnect()
+		heartbeatConn = nil
+	end
+
+	-- try to restore walk speed
+	if humanoid and humanoid.Parent then
+		humanoid.WalkSpeed = normalSpeed
+	end
+end
 
 button.MouseButton1Click:Connect(function()
-	boosted = not boosted
-
 	if boosted then
-		humanoid.WalkSpeed = 40
-		button.Text = "Speed: ON"
-		button.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
+		disableBoost()
 	else
-		humanoid.WalkSpeed = 16
-		button.Text = "Speed: OFF"
-		button.BackgroundColor3 = Color3.fromRGB(255, 80, 120)
+		enableBoost()
 	end
 end)
 
 -- Reapply on respawn
 player.CharacterAdded:Connect(function(char)
 	character = char
-	humanoid = char:WaitForChild("Humanoid")
-	if boosted then humanoid.WalkSpeed = 40 end
+	humanoid = character:WaitForChild("Humanoid")
+
+	-- If toggle was on prior, re-enable
+	if boosted then
+		-- clear old conn then reapply
+		if heartbeatConn then heartbeatConn:Disconnect() heartbeatConn = nil end
+		enableBoost()
+	end
 end)
