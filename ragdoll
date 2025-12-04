@@ -22,22 +22,22 @@ button.Active = true
 
 -- Hover effect
 button.MouseEnter:Connect(function()
-    button.BackgroundColor3 = Color3.fromRGB(55, 55, 255)
+	button.BackgroundColor3 = Color3.fromRGB(55, 55, 255)
 end)
 button.MouseLeave:Connect(function()
-    button.BackgroundColor3 = Color3.fromRGB(75, 75, 255)
+	button.BackgroundColor3 = Color3.fromRGB(75, 75, 255)
 end)
 
 -- Execute ragdoll command
 button.MouseButton1Click:Connect(function()
-    local args = {
-        localPlayer,
-        "ragdoll"
-    }
+	local args = {
+		localPlayer,
+		"ragdoll"
+	}
 
-    ReplicatedStorage
-        :WaitForChild("Packages")
-        :WaitForChild("Net")
-        :WaitForChild("RE/AdminPanelService/ExecuteCommand")
-        :FireServer(unpack(args))
+	ReplicatedStorage
+		:WaitForChild("Packages")
+		:WaitForChild("Net")
+		:WaitForChild("RE/AdminPanelService/ExecuteCommand")
+		:FireServer(unpack(args))
 end)
